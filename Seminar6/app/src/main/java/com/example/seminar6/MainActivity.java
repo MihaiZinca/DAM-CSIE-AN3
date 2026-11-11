@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -27,6 +28,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     //putem pune orice valori dar sa fie diferite
     int REQUEST_ADD=111;
     int REQUEST_EDIT=222;
+
+    int pozitie;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +82,67 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Intent A2=new Intent(this, MainActivity2.class);
         A2.putExtra("editArticol",listaArticole.get(position)); //pt a nu da eroare trebuie sa facem clasa serializabila
         startActivityForResult(A2,REQUEST_EDIT);
+
+        pozitie=position; //ca sa stim valoarea la edit
         return false;
+    }
+
+    //ovveride methods din generate
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode==REQUEST_ADD && resultCode==RESULT_OK && data!=null)
+        {
+            //avem de adaugat un nou element in lista
+            Articol a=(Articol) data.getSerializableExtra("addArticol");
+            if (a!=null)
+            {
+                ArrayAdapter<Articol> adaptor=(ArrayAdapter<Articol>) listaEcran.getAdapter();
+                listaArticole.add(a);
+
+                Collections.sort(listaArticole, new Comparator<Articol>() {
+                            @Override
+                            public int compare(Articol o1, Articol o2) {
+                                if(o1.Pret<o2.Pret)
+                                    return 1; //daca vrei crescator punem return -1;
+                                else if(o1.Pret>o2.Pret)
+                                    return -1;// pt crescator punem return 1
+                                else
+                                    return 0;
+                            }
+                        });
+
+                adaptor.notifyDataSetChanged();
+
+            }
+
+        }
+
+        if(requestCode==REQUEST_EDIT && resultCode==RESULT_OK && data!=null)
+        {
+            //editam o valoare existenta in lista
+            Articol a=(Articol) data.getSerializableExtra("editArticol");
+            listaArticole.get(pozitie).Nume=a.Nume;
+            listaArticole.get(pozitie).Pret=a.Pret;
+
+            ArrayAdapter<Articol> adaptor=(ArrayAdapter<Articol>) listaEcran.getAdapter();
+
+            Collections.sort(listaArticole, new Comparator<Articol>() {
+                @Override
+                public int compare(Articol o1, Articol o2) {
+                    if(o1.Pret<o2.Pret)
+                        return 1; //daca vrei crescator punem return -1;
+                    else if(o1.Pret>o2.Pret)
+                        return -1;// pt crescator punem return 1
+                    else
+                        return 0;
+                }
+            });
+
+            adaptor.notifyDataSetChanged();
+
+
+        }
     }
 }

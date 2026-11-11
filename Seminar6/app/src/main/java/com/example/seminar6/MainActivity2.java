@@ -14,6 +14,9 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity2 extends AppCompatActivity {
 
+
+    boolean edit_mode=false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +39,8 @@ public class MainActivity2 extends AppCompatActivity {
             etNume.setText(a.Nume);
             etPret.setText(String.valueOf(a.Pret));
             //cand apas long click pe un articol apare direct nume si pretul din lista
+
+            edit_mode=true; //pt ca suntem pe editare
         }
     }
 
@@ -55,5 +60,19 @@ public class MainActivity2 extends AppCompatActivity {
             Toast.makeText(this, "Pretul trebuie sa fie numeric si pozitiv", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        Articol a=new Articol();
+        a.Nume=etNume.getText().toString();
+        a.Pret=Double.parseDouble(etPret.getText().toString().trim());
+
+        Intent intent=getIntent();
+        if(edit_mode)
+            intent.putExtra("editArticol",a);
+        else
+            intent.putExtra("addArticol",a);
+
+        setResult(RESULT_OK,intent);
+
+        finish();
     }
 }
